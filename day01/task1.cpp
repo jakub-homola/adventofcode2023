@@ -2,6 +2,8 @@
 #include <cstring>
 #include <algorithm>
 
+
+
 int main()
 {
     int sum = 0;
@@ -26,4 +28,3 @@ int main()
 
     return 0;
 }
-
