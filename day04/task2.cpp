@@ -42,7 +42,6 @@ int main()
 
     for(int i = 0; ; i++)
     {
-        // printf("MMM "); for(size_t j = 0; j < multipliers.size(); j++) printf("%d ", multipliers[j]); printf("\n");
         while(fgetc(stdin) != ':')
         {
             if(feof(stdin))
@@ -80,7 +79,6 @@ int main()
         {
             multipliers[i+j+1] += multipliers[i];
         }
-        // if(multipliers[i] == 1 && nmatches == 0) break;
     }
 
     theend:
