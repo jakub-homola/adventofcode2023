@@ -1,11 +1,11 @@
 
 .PHONY: compile clean run
 
-compile: task1.x task22.x
+compile: task1.x task2.x
 
 run: compile
 	./task1.x < input.txt
-	./task22.x < input.txt
+	./task2.x < input.txt
 
 clean:
 	rm -f *.x
