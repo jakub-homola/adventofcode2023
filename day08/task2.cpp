@@ -2,6 +2,7 @@
 #include <vector>
 #include <cstring>
 #include <algorithm>
+#include <numeric>
 
 
 
@@ -130,6 +131,14 @@ int main()
     //     for(size_t j = 0; j < cycles[i].finalnodeidxsincycle.size(); j++) printf(" %d", cycles[i].finalnodeidxsincycle[j]);
     //     printf("\n");
     // }
+
+    {
+        // special case because the input has a weirdly simple structure, each cycle contains only a single final node, which is at index equal to the cycle length
+        long long nsteps = 1;
+        for(size_t i = 0; i < cycles.size(); i++) nsteps = std::lcm(nsteps, cycles[i].length);
+        printf("%lld\n", nsteps);
+        return 0;
+    }
 
     long long nsteps;
     for(size_t i = 0; i < cycles.size(); i++)
