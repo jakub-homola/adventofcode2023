@@ -3,6 +3,10 @@
 #include <cstdio>
 #include <vector>
 #include <cstring>
+#include <algorithm>
+#include <cmath>
+#include <deque>
+#include <numeric>
 
 
 
