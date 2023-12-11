@@ -13,7 +13,7 @@ std::vector<std::vector<char>> read_lines()
     char line[max_line_len];
     while(true)
     {
-        fgets(line, max_line_len, stdin);
+        char * s = fgets(line, max_line_len, stdin);
         if(feof(stdin)) break;
         size_t len = strlen(line);
         line[len-1] = '\0';
