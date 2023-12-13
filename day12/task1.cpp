@@ -1,4 +1,4 @@
-#include "helpers.hpp"
+#include "../helpers/helpers.hpp"
 
 
 
@@ -16,9 +16,6 @@ struct springseq
 
 bool matches(char * str, char * unk, std::vector<int> & sizes)
 {
-    // printf("CCC %s %s", str, unk);
-    // for(size_t i = 0; i < sizes.size(); i++) printf(" %d", sizes[i]);
-    // printf("\n");
     int curr_seq_size = 0;
     char * curr_unk = unk;
     int curr_size_idx = 0;
@@ -46,7 +43,7 @@ bool matches(char * str, char * unk, std::vector<int> & sizes)
 
 int main()
 {
-    std::vector<std::vector<char>> lines = read_lines();
+    std::vector<std::string> lines = read_lines();
     std::vector<springseq> springseqs(lines.size());
 
     for(size_t i = 0; i < lines.size(); i++)
