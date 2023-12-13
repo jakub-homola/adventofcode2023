@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <vector>
+#include <string>
 #include <cstring>
 #include <algorithm>
 #include <cmath>
@@ -10,9 +11,9 @@
 
 
 
-std::vector<std::vector<char>> read_lines()
+std::vector<std::string> read_lines()
 {
-    std::vector<std::vector<char>> ret;
+    std::vector<std::string> ret;
     constexpr size_t max_line_len = 100000;
     char line[max_line_len];
     while(true)
@@ -21,9 +22,7 @@ std::vector<std::vector<char>> read_lines()
         if(feof(stdin)) break;
         size_t len = strlen(line);
         line[len-1] = '\0';
-        std::vector<char> linevec(len+1);
-        strcpy(linevec.data(), line);
-        ret.push_back(std::move(linevec));
+        ret.emplace_back(line);
     }
     return ret;
 }
