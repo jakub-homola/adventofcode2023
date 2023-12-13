@@ -11,5 +11,5 @@ clean:
 	rm -f *.x
 
 %.x: %.cpp Makefile
-	g++ -g -O2 -I../helpers $< -o $@
+	g++ -g -O2 $< -o $@
 
