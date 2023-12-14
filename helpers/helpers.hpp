@@ -24,6 +24,7 @@ std::vector<std::string> read_lines()
         if(feof(stdin)) break;
         size_t len = strlen(line);
         line[len-1] = '\0';
+        if(line[len-2] == '\r') line[len-2] = '\0';
         ret.emplace_back(line);
     }
     return ret;
