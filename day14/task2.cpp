@@ -135,26 +135,34 @@ int main()
 
     
     std::vector<std::vector<std::string>> dish_past;
+    std::vector<int> dish_past_weights;
+    dish_past.push_back(dish);
+    dish_past_weights.push_back(get_weight(dish));
     for(int i = 0; i < ncycles; i++)
     {
-        dish_past.push_back(dish);
         do_slide_cycle(dish);
-        auto it = std::find(dish_past.begin(), dish_past.end(), dish);
-        if(it != dish_past.end())
+        int weight = get_weight(dish);
+        for(size_t j = 0; j < dish_past.size(); j++)
         {
-            int period = dish_past.end() - it;
-            int rem_cycles = ncycles - i - 1;
-            int whole_periods = rem_cycles / period;
-            int todo_cycles = rem_cycles - whole_periods * period;
-            for(int j = 0; j < todo_cycles; j++)
+            if(weight == dish_past_weights[j] && dish == dish_past[j])
             {
-                do_slide_cycle(dish);
+                int period = dish_past.size() - j;
+                int rem_cycles = ncycles - i - 1;
+                int whole_periods = rem_cycles / period;
+                int todo_cycles = rem_cycles - whole_periods * period;
+                for(int j = 0; j < todo_cycles; j++)
+                {
+                    do_slide_cycle(dish);
+                }
+                // printf("last cycle %d period %d todo %d\n", i, period, todo_cycles);
+                goto theend;
             }
-            // printf("last cycle %d period %d todo %d\n", i, period, todo_cycles);
-            break;
         }
+        dish_past.push_back(dish);
+        dish_past_weights.push_back(weight);
     }
 
+    theend:
     int result = get_weight(dish);
     printf("%d\n", result);
 
