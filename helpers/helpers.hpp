@@ -57,3 +57,39 @@ void read_until_char(char ch)
 {
     while(getchar() != ch) ;
 }
+
+
+
+enum struct order
+{
+    row,
+    col
+};
+
+template<typename T>
+struct arrayview_1d
+{
+    T * data;
+    size_t size;
+    arrayview_1d(T * d, size_t s) : data{d}, size{s} {}
+    T & operator[](size_t i) { return data[i]; }
+    const T & operator[](size_t i) const { return data[i]; }
+};
+
+template<typename T, order O = order::row>
+struct arrayview_2d
+{
+    T * data;
+    size_t nrows, ncols;
+    arrayview_2d(T * d, size_t nr, size_t nc) : data{d}, nrows{nr}, ncols{nc} {}
+    arrayview_1d<T> operator[](size_t i)
+    {
+        if constexpr(O == order::row) return arrayview_1d<T>(data + i * ncols, nrows);
+        if constexpr(O == order::col) return arrayview_1d<T>(data + i * nrows, ncols);
+    }
+    const arrayview_1d<T> operator[](size_t i) const
+    {
+        if constexpr(O == order::row) return arrayview_1d<T>(data + i * ncols, nrows);
+        if constexpr(O == order::col) return arrayview_1d<T>(data + i * nrows, ncols);
+    }
+};
