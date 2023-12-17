@@ -11,6 +11,8 @@
 #include <numeric>
 #include <map>
 #include <unordered_map>
+#include <set>
+#include <unordered_set>
 
 
 
@@ -91,5 +93,43 @@ struct arrayview_2d
     {
         if constexpr(O == order::row) return arrayview_1d<T>(data + i * ncols, nrows);
         if constexpr(O == order::col) return arrayview_1d<T>(data + i * nrows, ncols);
+    }
+};
+
+template<typename T, size_t N>
+struct arrayview_nd
+{
+    T * data;
+    size_t * sizes;
+    arrayview_nd(T * d, size_t * s) : data{d}, sizes(s) {}
+    arrayview_nd<T,N-1> operator[](size_t i)
+    {
+        int offset = 1;
+        #pragma unroll
+        for(int j = 1; j < N; j++) offset *= sizes[j];
+        return arrayview_nd<T,N-1>(data + i * offset, sizes + 1);
+    }
+    const arrayview_nd<T,N-1> operator[](size_t i) const
+    {
+        int offset = 1;
+        #pragma unroll
+        for(int j = 1; j < N; j++) offset *= sizes[j];
+        return arrayview_nd<T,N-1>(data + i * offset, sizes + 1);
+    }
+};
+
+template<typename T>
+struct arrayview_nd<T,1>
+{
+    T * data;
+    size_t * sizes;
+    arrayview_nd(T * d, size_t * s) : data{d}, sizes(s) {}
+    T & operator[](size_t i)
+    {
+        return data[i];
+    }
+    const T & operator[](size_t i) const
+    {
+        return data[i];
     }
 };
