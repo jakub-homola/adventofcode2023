@@ -36,8 +36,6 @@ struct state
     int heatloss;
     int stepsindir;
     direction dir;
-    // std::vector<int> prevr;
-    // std::vector<int> prevc;
     struct comparator
     {
         bool operator()(const state & s1, const state & s2) const
@@ -106,8 +104,6 @@ int main()
             vis = true;
 
             nextstate.heatloss += heatloss[nextstate.r][nextstate.c];
-            // nextstate.prevr.push_back(currstate.r);
-            // nextstate.prevc.push_back(currstate.c);
             pathends.insert(nextstate);
         }
     }
@@ -115,7 +111,6 @@ int main()
     delete[] visited_vec;
 
     printf("%d\n", laststate.heatloss);
-    // for(size_t i = 0; i < laststate.prevr.size(); i++) printf("%2d %2d\n", laststate.prevr[i], laststate.prevc[i]);
 
     return 0;
 }
