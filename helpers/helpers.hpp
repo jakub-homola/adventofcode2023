@@ -134,3 +134,70 @@ struct arrayview_nd<T,1>
         return data[i];
     }
 };
+
+
+
+
+struct direction
+{
+    int val;
+    constexpr direction() : val(-1) {}
+    constexpr direction(int v) : val{v} {}
+    constexpr operator int() const { return val; }
+    constexpr bool operator==(const direction & other) const { return other.val == val; }
+};
+
+struct directions
+{
+    constexpr static direction none = direction(-1);
+    constexpr static direction north = direction(0);
+    constexpr static direction east  = direction(1);
+    constexpr static direction south = direction(2);
+    constexpr static direction west  = direction(3);
+    
+    constexpr static char to_char(direction d)
+    {
+        switch(d)
+        {
+            case directions::north: return 'N';
+            case directions::west:  return 'W';
+            case directions::south: return 'S';
+            case directions::east:  return 'E';
+            default: return 'O';
+        }
+    }
+    constexpr static direction turn_left(direction d)
+    {
+        switch(d)
+        {
+            case directions::north: return directions::west;
+            case directions::west:  return directions::south;
+            case directions::south: return directions::east;
+            case directions::east:  return directions::north;
+            default: return directions::none;
+        }
+    }
+    constexpr static direction turn_right(direction d)
+    {
+        switch(d)
+        {
+            case directions::north: return directions::east;
+            case directions::east:  return directions::south;
+            case directions::south: return directions::west;
+            case directions::west:  return directions::north;
+            default: return directions::none;
+        }
+    }
+    constexpr static direction turn_around(direction d)
+    {
+        switch(d)
+        {
+            case directions::north: return directions::south;
+            case directions::south: return directions::north;
+            case directions::east:  return directions::west;
+            case directions::west:  return directions::east;
+            default: return directions::none;
+        }
+    }
+};
+

@@ -2,24 +2,6 @@
 
 
 
-struct direction
-{
-    int val;
-    constexpr direction(int v) : val{v} {}
-    operator int() const { return val; }
-    bool operator==(const direction & other) const { return other.val == val; }
-};
-
-struct directions
-{
-    constexpr static direction north = direction(0);
-    constexpr static direction south = direction(1);
-    constexpr static direction east  = direction(2);
-    constexpr static direction west  = direction(3);
-};
-
-
-
 struct tile
 {
     char object;

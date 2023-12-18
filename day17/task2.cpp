@@ -2,25 +2,6 @@
 
 
 
-struct direction
-{
-    unsigned int val = 0;
-    direction() {}
-    constexpr direction(unsigned int v) : val{v} {}
-    operator int() const { return val; }
-    bool operator==(const direction & other) const { return other.val == val; }
-};
-
-struct directions
-{
-    constexpr static direction none  = direction(0);
-    constexpr static direction north = direction(1);
-    constexpr static direction east  = direction(2);
-    constexpr static direction south = direction(3);
-    constexpr static direction west  = direction(4);
-    constexpr static std::array<direction,4> all_directions = {directions::north, directions::east, directions::south, directions::west};
-};
-
 bool dir_is_opposite(direction d1, direction d2)
 {
     if(int(d1) < (int)d2) std::swap(d1,d2);
@@ -82,8 +63,9 @@ int main()
             break;
         }
 
-        for(direction dir : directions::all_directions)
+        for(int d = 0; d < 4; d++)
         {
+            direction dir(d);
             if(dir_is_opposite(dir, currstate.dir)) continue;
             if(currstate.stepsindir < min_steps_in_dir && dir != currstate.dir) continue;
             state nextstate = currstate;

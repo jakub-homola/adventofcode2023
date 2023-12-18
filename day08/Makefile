@@ -10,6 +10,6 @@ run: compile
 clean:
 	rm -f *.x
 
-%.x: %.cpp Makefile
-	g++ -g -O2 -fopenmp $< -o $@
+%.x: %.cpp Makefile ../helpers/helpers.hpp
+	g++ -g -O2 $< -o $@
 

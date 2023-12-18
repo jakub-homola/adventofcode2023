@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cstring>
 
-#include "helpers.hpp"
+#include "../helpers/helpers.hpp"
 
 
 
@@ -19,7 +19,7 @@ struct pos
 
 int main()
 {
-    std::vector<std::vector<char>> map = read_lines();
+    std::vector<std::string> map = read_lines();
     int nrows = map.size();
     int ncols = map[0].size();
 
