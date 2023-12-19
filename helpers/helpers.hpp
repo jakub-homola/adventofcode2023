@@ -36,6 +36,40 @@ std::vector<std::string> read_lines()
 
 
 
+void read_lines(std::vector<std::string> & ret)
+{
+    constexpr size_t max_line_len = 100000;
+    char line[max_line_len];
+    while(true)
+    {
+        char * s = fgets(line, max_line_len, stdin);
+        if(feof(stdin)) break;
+        size_t len = strlen(line);
+        line[len-1] = '\0';
+        if(line[len-2] == '\r') line[len-2] = '\0';
+        ret.emplace_back(line);
+    }
+}
+
+
+
+void read_lines(std::vector<std::vector<char>> & ret)
+{
+    constexpr size_t max_line_len = 100000;
+    char line[max_line_len];
+    while(true)
+    {
+        char * s = fgets(line, max_line_len, stdin);
+        if(feof(stdin)) break;
+        size_t len = strlen(line);
+        line[len-1] = '\0';
+        if(line[len-2] == '\r') line[len-2] = '\0';
+        ret.emplace_back(line, line + len);
+    }
+}
+
+
+
 template<typename I>
 std::vector<I> read_ints()
 {
@@ -201,3 +235,18 @@ struct directions
     }
 };
 
+
+
+std::vector<char *> split_string(char * str, char sep)
+{
+    std::vector<char *> ret;
+    while(true)
+    {
+        ret.push_back(str);
+        str = strchr(str, sep);
+        if(str == nullptr) break;
+        *str = '\0';
+        str++;
+    }
+    return ret;
+}
