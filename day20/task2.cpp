@@ -5,8 +5,9 @@
 struct module
 {
     const char * name;
-    std::vector<const char *> connected_names;
-    std::vector<module *> connected;
+    std::vector<const char *> outputs_names;
+    std::vector<module *> outputs;
+    std::vector<module *> inputs;
     int idx_in_types = -1;
     char type;
 };
@@ -18,8 +19,28 @@ struct pulse
     char type;
 };
 
+struct range
+{
+    long long first;
+    long long last;
+};
+
+struct weird_cycle
+{
+    module * conj = nullptr;
+    std::vector<module *> flipflops;
+    long long period;
+};
+
+void invert_pulse_type_inplace(char & p)
+{
+    if(p == 'H') p = 'L';
+    else if(p == 'L') p = 'H';
+}
 
 
+
+// some specially crafted input data again ... ... ...
 int main()
 {
     std::vector<std::vector<char>> input;
@@ -30,7 +51,7 @@ int main()
         module & button = modules.emplace_back();
         button.name = "button";
         button.type = 'B';
-        button.connected_names.push_back("broadcaster");
+        button.outputs_names.push_back("broadcaster");
     }
 
     for(std::vector<char> & linevec : input)
@@ -59,8 +80,8 @@ int main()
         str = space + 3;
 
         std::vector<char *> connected_str = split_string(str, ',');
-        nm.connected_names.resize(connected_str.size());
-        std::transform(connected_str.begin(), connected_str.end(), nm.connected_names.begin(), [](char * cs){ return cs + 1; });
+        nm.outputs_names.resize(connected_str.size());
+        std::transform(connected_str.begin(), connected_str.end(), nm.outputs_names.begin(), [](char * cs){ return cs + 1; });
     }
 
     module & m_button = modules[0];
@@ -69,7 +90,7 @@ int main()
 
     for(module & m : modules)
     {
-        for(const char * con_name : m.connected_names)
+        for(const char * con_name : m.outputs_names)
         {
             auto it = std::find_if(modules.begin(), modules.end(), [&](const module & m){ return strcmp(con_name, m.name) == 0; });
             if(it == modules.end())
@@ -79,89 +100,63 @@ int main()
                 nm.type = '_';
                 it = modules.end() - 1;
             }
-            m.connected.push_back(&(*it));
+            m.outputs.push_back(&(*it));
         }
     }
 
-    std::vector<bool> states_flipflop;
-    std::vector<std::vector<std::pair<module *, char>>> states_conjunction;
     for(module & m : modules)
     {
-        if(m.type == 'F')
+        for(module * mdst : m.outputs)
         {
-            m.idx_in_types = states_flipflop.size();
-            states_flipflop.push_back(false);
-        }
-        if(m.type == 'C')
-        {
-            m.idx_in_types = states_conjunction.size();
-            states_conjunction.emplace_back();
+            mdst->inputs.push_back(&m);
         }
     }
-    for(module & m : modules)
+
+    std::vector<weird_cycle> weird_cycles;
+    for(size_t i = 0; i < m_broadcaster.outputs.size(); i++)
     {
-        for(module * mdst : m.connected)
+        weird_cycle & wc = weird_cycles.emplace_back();
+        module * curr_flipflop = m_broadcaster.outputs[i];
+        while(curr_flipflop != nullptr)
         {
-            if(mdst->type == 'C')
-            {
-                states_conjunction[mdst->idx_in_types].push_back({&m, 'L'});
-            }
+            wc.flipflops.push_back(curr_flipflop);
+            module * m1 = (curr_flipflop->outputs.size() >= 1) ? curr_flipflop->outputs[0] : nullptr;
+            module * m2 = (curr_flipflop->outputs.size() >= 2) ? curr_flipflop->outputs[1] : nullptr;
+            curr_flipflop = nullptr;
+            if(m1 != nullptr && m1->type == 'F') curr_flipflop = m1;
+            if(m2 != nullptr && m2->type == 'F') curr_flipflop = m2;
+            if(m1 != nullptr && m1->type == 'C') wc.conj = m1;
+            if(m2 != nullptr && m2->type == 'C') wc.conj = m2;
         }
     }
 
-    long long button_presses = 0;
-    while(true)
+    for(weird_cycle & wc : weird_cycles)
     {
-        if(button_presses % 1000000 == 0) printf("%lld\n", button_presses);
-        button_presses++;
-        std::deque<pulse> pulses;
-        pulses.push_back({m_button, m_broadcaster, 'L'});
-        while(!pulses.empty())
+        long long num = 0;
+        for(size_t i = 0; i < wc.flipflops.size(); i++)
         {
-            pulse p = pulses.front();
-            pulses.pop_front();
-            module & m = p.dst;
-            // printf("%12s --%c--> %12s\n", p.src.name, p.type, p.dst.name);
-
-            if(&m == &m_rx && p.type == 'L') goto theend;
-            
-            if(m.type == 'X')
-            {
-                for(module * mdst : m.connected)
-                {
-                    pulses.push_back({m, *mdst, p.type});
-                }
-            }
-            if(m.type == 'F')
-            {
-                if(p.type == 'L')
-                {
-                    char tosend = 'H';
-                    if(states_flipflop[m.idx_in_types]) tosend = 'L';
-                    for(module * mdst : m.connected)
-                    {
-                        pulses.push_back({m, *mdst, tosend});
-                    }
-                    states_flipflop[m.idx_in_types] = !states_flipflop[m.idx_in_types];
-                }
-            }
-            if(m.type == 'C')
-            {
-                module & msrc = p.src;
-                std::vector<std::pair<module *, char>> & state = states_conjunction[m.idx_in_types];
-                std::find_if(state.begin(), state.end(), [&](const std::pair<module *, char> & p){ return &msrc == p.first; })->second = p.type;
-                char tosend = 'H';
-                if(std::all_of(state.begin(), state.end(), [](const std::pair<module *, char> & p){ return p.second == 'H'; })) tosend = 'L';
-                for(module * mdst : m.connected)
-                {
-                    pulses.push_back({m, *mdst, tosend});
-                }
-            }
+            module * ff = wc.flipflops[i];
+            if(std::count_if(ff->outputs.begin(), ff->outputs.end(), [](const module * m){return m->type == 'C';}) > 0) num |= 1ll << i;
         }
+        wc.period = num;
     }
 
-    theend:
-    printf("%lld\n", button_presses);
+    // for(weird_cycle & wc : weird_cycles)
+    // {
+    //     printf("conj %s flipflops", wc.conj->name);
+    //     for(module * m : wc.flipflops) printf(" %s", m->name);
+    //     printf("   toconj ");
+    //     for(module * m : wc.flipflops) printf("%zu", std::count_if(m->outputs.begin(), m->outputs.end(), [](const module * m){return m->type == 'C';}));
+    //     printf("   fromconj ");
+    //     for(module * m : wc.flipflops) printf("%zu", std::count_if(m->inputs.begin(), m->inputs.end(), [](const module * m){return m->type == 'C';}));
+    //     printf("   period %lld", wc.period);
+    //     printf("\n");
+    // }
+
+    long long result = 1;
+    for(weird_cycle & wc : weird_cycles) result = std::lcm(result, wc.period);
+
+    printf("%lld\n", result);
 
     return 0;
 }
