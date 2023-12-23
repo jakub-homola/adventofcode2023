@@ -15,12 +15,26 @@ struct node
     std::vector<int> next_dists;
 };
 
-struct hike
+
+
+int get_longest_hike(std::vector<node> & nodes, std::vector<bool> & visited, int curr_node_idx, int final_node_idx)
 {
-    int curr_node_idx;
-    std::vector<bool> visited_nodes;
-    int length;
-};
+    if(curr_node_idx == final_node_idx) return 0;
+
+    int max_length = 0;
+    visited[curr_node_idx] = true;
+    node & n = nodes[curr_node_idx];
+    for(int i = 0; i < n.next_node_idxs.size(); i++)
+    {
+        int idx = n.next_node_idxs[i];
+        if(visited[idx]) continue;
+        int next_len = n.next_dists[i] + get_longest_hike(nodes, visited, idx, final_node_idx);
+        max_length = std::max(max_length, next_len);
+    }
+    visited[curr_node_idx] = false;
+
+    return max_length;
+}
 
 
 
@@ -117,37 +131,13 @@ int main()
     // for(size_t ni = 0; ni != nodes.size(); ni++)
     // {
     //     node & n = nodes[ni];
-    //     printf("node %2zu {%2d,%2d}, trails", ni, n.pos.r, n.pos.c);
-    //     for(size_t i = 0; i < n.next_node_idxs.size(); i++) printf(" {%2d,%2d;%2d}", nodes[n.next_node_idxs[i]].pos.r, nodes[n.next_node_idxs[i]].pos.c, n.next_dists[i]);
+    //     printf("node %2zu {%3d,%3d}, trails", ni, n.pos.r, n.pos.c);
+    //     for(size_t i = 0; i < n.next_node_idxs.size(); i++) printf(" {%3d,%3d;%3d}", nodes[n.next_node_idxs[i]].pos.r, nodes[n.next_node_idxs[i]].pos.c, n.next_dists[i]);
     //     printf("\n");
     // }
 
-    int max_length = 0;
-    std::vector<hike> hikes;
-    hike & starthike = hikes.emplace_back();
-    starthike.curr_node_idx = 0;
-    starthike.length = 0;
-    starthike.visited_nodes.resize(nodes.size(), false);
-    while(!hikes.empty())
-    {
-        hike h = std::move(hikes.back());
-        hikes.pop_back();
-        if(h.curr_node_idx == final_node_idx)
-        {
-            max_length = std::max(max_length, h.length);
-            continue;
-        }
-        h.visited_nodes[h.curr_node_idx] = true;
-        node & n = nodes[h.curr_node_idx];
-        for(size_t i = 0; i < n.next_node_idxs.size(); i++)
-        {
-            int nidx = n.next_node_idxs[i];
-            if(h.visited_nodes[nidx]) continue;
-            hike & nh = hikes.emplace_back(h);
-            nh.length += n.next_dists[i];
-            nh.curr_node_idx = nidx;
-        }
-    }
+    std::vector<bool> visited(nodes.size(), false);
+    int max_length = get_longest_hike(nodes, visited, start_node_idx, final_node_idx);
 
     printf("%d\n", max_length);
 
