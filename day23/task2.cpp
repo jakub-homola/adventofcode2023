@@ -107,7 +107,8 @@ int main()
                 if(curr_dir == directions::west) c--;
                 if(terrain[r][c] == '#') break;
                 direction way_back = directions::turn_around(curr_dir);
-                curr_dir = *std::find_if(possible_dirs[r][c].begin(), possible_dirs[r][c].end(), [&](direction dd){return dd != way_back;});
+                auto it = std::find_if(possible_dirs[r][c].begin(), possible_dirs[r][c].end(), [&](direction dd){return dd != way_back;});
+                if(it != possible_dirs[r][c].end()) curr_dir = *it;
                 curr_dist++;
             }
         }
